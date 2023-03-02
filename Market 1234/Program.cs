@@ -14,8 +14,9 @@ namespace Market_1234
 
     class Market
     {
-        private int _money = 0;
         private static Random _random = new Random();
+
+        private int _money = 0;
         private Queue<Client> _clientsQueue = new Queue<Client>();
 
         public Market()
@@ -44,9 +45,9 @@ namespace Market_1234
 
                 while (isActiv) 
                 {
-                    if(client.PaySuccess(client.GetBusket()))
+                    if(client.TryPay())
                     {
-                        _money += client.GetBusket().GetBusketSum();
+                        _money += client.Basket.GetBusketSum();
                         Console.WriteLine($"Баланс магазина {_money} рублей");
                         isActiv = false;
                     }
@@ -58,9 +59,9 @@ namespace Market_1234
 
                         client.GetBusket().RemoveProduct(product);
 
-                        if (client.PaySuccess(client.GetBusket()))
+                        if (client.TryPay())
                         {
-                            _money += client.GetBusket().GetBusketSum();
+                            _money += client.Basket.GetBusketSum();
                             Console.WriteLine($"Баланс магазина {_money} рублей");
                             isActiv = false;
                         }
@@ -72,9 +73,10 @@ namespace Market_1234
 
     class Client
     {
-        private int _money;
-        private Busket _basket;
+        public Busket Basket;
+
         private static Random _random = new Random();
+        private int _money;
 
         public Client()
         {
@@ -82,28 +84,28 @@ namespace Market_1234
             int maxValueMoney = 300;
 
             _money = _random.Next(minValueMoney, maxValueMoney);
-            _basket = new Busket();
+            Basket = new Busket();
         }
 
         public int Money => _money;
 
         public Busket GetBusket()
         {
-            return _basket;
+            return Basket;
         }
 
-        public bool PaySuccess(Busket busket)
+        public bool TryPay()
         {
-            if (busket.GetBusketCount() == 0)
+            if (Basket.GetBusketCount() == 0)
             {
                 Console.WriteLine("У улиента в корзине нет продуктов");
                 return false;
             }
 
-            if (busket.GetBusketSum() <= _money)
+            if (Basket.GetBusketSum() <= _money)
             {
-                Console.WriteLine($"Довольный клиент совершил покупку на {busket.GetBusketSum()}! Это успех");
-                _money -= busket.GetBusketSum();
+                Console.WriteLine($"Довольный клиент совершил покупку на {Basket.GetBusketSum()}! Это успех");
+                _money -= Basket.GetBusketSum();
                 return true;
             }
 
@@ -112,16 +114,17 @@ namespace Market_1234
 
         public void ShowInfo()
         {
-            Console.WriteLine($"У клиента {_money} денег, стоимость корзины {_basket.GetBusketSum()}");
+            Console.WriteLine($"У клиента {_money} денег, стоимость корзины {Basket.GetBusketSum()}");
 
-            _basket.ShowBusket();
+            Basket.ShowBusket();
         }
     }
 
     class Busket
     {
-        private List<Product> _products = new List<Product>();
         private static Random _random = new Random();
+
+        private List<Product> _products = new List<Product>();
 
         public Busket()
         {
